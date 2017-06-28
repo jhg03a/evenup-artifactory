@@ -43,6 +43,7 @@ class artifactory(
   $license             = undef,
   $import_config_xml   = undef,
   $import_security_xml = undef,
+  $binarystore_xml     = undef,
   $replica_user        = undef,
   $replica_pass        = undef,
   $manage_java         = true,

@@ -80,4 +80,15 @@ class artifactory::config (
       require => [ User['artifactory'], Group['artifactory'], File[$::artifactory::data_path] ],
     }
   }
+
+  # Use with extreme caution as this can corrupt or change your binary storage
+  if $::artifactory::binarystore_xml {
+    file { "${::artifactory::home_dir}/etc/binarystore.xml":
+      content => $::artifactory::binarystore_xml,
+      notify  => Service['artifactory'],
+      owner   => 'artifactory',
+      group   => 'artifactory',
+      require => [ User['artifactory'], Group['artifactory'], File[$::artifactory::data_path] ],
+    }
+  }
 }
