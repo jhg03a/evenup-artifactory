@@ -13,28 +13,42 @@ class artifactory::install {
     fail("Use of private class ${name} by ${caller_module_name}")
   }
 
-  if $::osfamily == 'Debian' {
-    apt::key { 'artifactory':
-      key        => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
-      key_source => 'https://bintray.com/user/downloadSubjectPublicKey?username=jfrog',
-    }
+  if $::artifactory::manage_repo {
+    case $::osfamily {
+      'Debian': {
+        apt::key { 'artifactory':
+          key        => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
+          key_source => 'https://bintray.com/user/downloadSubjectPublicKey?username=jfrog',
+        }
 
-    apt::source { 'artifactory-oss':
-      comment     => 'Atifactory open source repository',
-      location    => 'https://bintray.com/artifact/download/jfrog/artifactory-debs',
-      repos       => 'main',
-      include_deb => 'true',
-      key         => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
-      key_server  => 'keyserver.ubuntu.com',
-    }
+        apt::source { 'artifactory-oss':
+          comment     => 'Artifactory open source repository',
+          location    => 'https://bintray.com/artifact/download/jfrog/artifactory-debs',
+          repos       => 'main',
+          include_deb => true,
+          key         => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
+          key_server  => 'keyserver.ubuntu.com',
+        }
 
-    apt::source { 'artifactory-pro':
-      comment     => 'Atifactory Pro repository',
-      location    => 'https://jfrog.bintray.com/artifactory-pro-debs',
-      repos       => 'main',
-      include_deb => 'true',
-      key         => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
-      key_server  => 'pgp.mit.edu',
+        apt::source { 'artifactory-pro':
+          comment     => 'Artifactory Pro repository',
+          location    => 'https://jfrog.bintray.com/artifactory-pro-debs',
+          repos       => 'main',
+          include_deb => true,
+          key         => 'A3D085F542F740BBD7E3A2846B219DCCD7639232',
+          key_server  => 'pgp.mit.edu',
+        }
+      }
+      'RedHat': {
+        yumrepo { 'artifactory':
+          baseurl => 'http://jfrog.bintray.com/artifactory-pro-rpms',
+          descr   => 'Artifactory by JFrog repository',
+          enabled => true,
+        }
+      }
+      default: {
+        fail('Artifactory repository management for this osfamily is unsupported')
+      }
     }
   }
 
@@ -59,7 +73,7 @@ class artifactory::install {
     provider => $::artifactory::package_provider,
     source   => $::artifactory::package_source,
     notify   => Class['artifactory::service'],
-    require  => [ User['artifactory'], Group['artifactory'], Exec['apt_update'] ],
+    require  => [ User['artifactory'], Group['artifactory'] ],
   }
 
   file {$::artifactory::home_dir:
