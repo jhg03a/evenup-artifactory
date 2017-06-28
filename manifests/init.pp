@@ -64,8 +64,8 @@ class artifactory(
     }
   }
 
-  class { '::artifactory::install': }
-  class { '::artifactory::config': }
+  class { '::artifactory::install': }->
+  class { '::artifactory::config': }->
   class { '::artifactory::service': }
 
 }
