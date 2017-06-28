@@ -50,12 +50,25 @@ class artifactory::config (
     fail("Use of private class ${name} by ${caller_module_name}")
   }
 
-  if $::artifactory::config_import_xml {
-    exec { 'Load Initial Artifactory Config':
-      command => "/bin/echo \"${::regsubst($::artifactory::config_import_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/artifactory.config.import.xml",
+  if $::artifactory::import_config_xml {
+    exec { 'Load Initial Artifactory Config Data':
+      command => "/bin/echo \"${::regsubst($::artifactory::import_config_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/artifactory.config.import.xml",
       unless  => "/usr/bin/test -s ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
       notify  => Class['artifactory::service'],
       require => File["${::artifactory::home_dir}/etc"],
+    }
+  }
+
+  if $::artifactory::import_security_xml {
+    exec { 'Load Initial Artifactory Security Data':
+      command => "/bin/echo \"${::regsubst($::artifactory::import_security_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/security.import.xml",
+      unless  => "/usr/bin/test -s ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
+      notify  => [Exec['Fix Initial Artifactory Security Data Permissions'],Class['artifactory::service']],
+      require => File["${::artifactory::home_dir}/etc"],
+    }
+    exec { 'Fix Initial Artifactory Security Data Permissions':
+      command     => "/usr/bin/chown artifactory:artifactory ${::artifactory::home_dir}/etc/security.import.xml",
+      refreshonly => true,
     }
   }
 
