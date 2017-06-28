@@ -96,18 +96,26 @@ class artifactory::install {
   }
 
   if $::artifactory::db_type == 'postgresql' {
+    $is_valid_jdbc_url_regex = '.*\/(.*\.jar)$'
+    if $::artifactory::postgresql_jdbc_url =~ $is_valid_jdbc_url_regex {
+      $pql_driver = regsubst($::artifactory::postgresql_jdbc_url,$is_valid_jdbc_url_regex,'\1')
     file { "${::artifactory::home_dir}/tomcat/lib":
       ensure => directory,
       mode   => '0775',
       owner  => artifactory,
       group  => artifactory,
     } ->
-    exec { 'Download java postgresql drivrer':
-      cwd     => "${::artifactory::home_dir}/tomcat/lib",
-      path    => ['/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin'],
-      command => "wget https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar -P ${::artifactory::home_dir}/tomcat/lib/",
-      notify  => Service["artifactory"],
-      creates => "${::artifactory::home_dir}/tomcat/lib/postgresql-9.4.1212.jar",
+      file {'Postgresql JDBC Driver':
+        ensure => 'file',
+        path   => "${::artifactory::home_dir}/tomcat/lib/${pql_driver}",
+        source => $::artifactory::postgresql_jdbc_url,
+        mode   => '0775',
+        owner  => artifactory,
+        group  => artifactory,
+        notify => Service['artifactory'],
+      }
+    } else {
+      fail("The Postgresql JDBC Driver URL doesn't look correct. (${::artifactory::postgresql_jdbc_url})")
     }
   }
 }

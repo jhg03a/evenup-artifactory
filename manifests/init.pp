@@ -46,6 +46,7 @@ class artifactory(
   $replica_pass       = undef,
   $manage_java        = true,
   $manage_user        = true,
+  $postgresql_jdbc_url = 'https://jdbc.postgresql.org/download/postgresql-42.1.1.jar',
 ) {
 
   #requires Java >1.8!!!
