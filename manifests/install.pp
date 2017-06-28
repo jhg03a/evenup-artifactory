@@ -84,20 +84,12 @@ class artifactory::install {
     require => Package['artifactory'],
   }
 
-  if $::artifactory::data_path != "${::artifactory::home_dir}/data" {
-    File <| title == $::artifactory::data_path |> {
-      ensure => directory,
-      mode   => '0775',
-      owner  => artifactory,
-      group  => artifactory,
-    }
-
-    file { "${::artifactory::home_dir}/data":
-      ensure => link,
-      target => $::artifactory::data_path,
-      owner  => artifactory,
-      group  => artifactory,
-    }
+  file { $::artifactory::data_path:
+    ensure => directory,
+    mode   => '0775',
+    owner  => artifactory,
+    group  => artifactory,
+    require => File[$::artifactory::home_dir],
   }
 
   if $::artifactory::backup_path {
