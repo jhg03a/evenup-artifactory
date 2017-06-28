@@ -43,8 +43,11 @@ Only tested on CentOS 6
 TODO:
 ____
 [ ] Make backups optional
+
 [ ] Make vhost optional
+
 [ ] Add more configurability
+
 [ ] Verify against artifactory 3
 
 License:
