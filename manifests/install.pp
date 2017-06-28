@@ -38,6 +38,7 @@ class artifactory::install {
     }
   }
 
+  if $::artifactory::manage_user {
   user { 'artifactory':
     ensure => 'present',
     system => true,
@@ -49,6 +50,7 @@ class artifactory::install {
   group { 'artifactory':
     ensure => 'present',
     system => true,
+  }
   }
 
   package { 'artifactory':

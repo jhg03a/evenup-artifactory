@@ -45,6 +45,7 @@ class artifactory(
   $replica_user       = undef,
   $replica_pass       = undef,
   $manage_java        = true,
+  $manage_user        = true,
 ) {
 
   #requires Java >1.8!!!
