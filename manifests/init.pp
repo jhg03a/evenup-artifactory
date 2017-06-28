@@ -30,7 +30,8 @@ class artifactory(
   $service_name       = 'artifactory',
   $package_provider   = undef,
   $package_source     = undef,
-  $ajp_port           = 8019,
+  $ajp_port           = undef,
+  $http_port          = undef,
   $home_dir           = '/var/opt/jfrog/artifactory',
   $data_path          = '/var/opt/jfrog/artifactory/data',
   $backup_path        = undef,
@@ -41,7 +42,6 @@ class artifactory(
   $db_pass            = undef,
   $license            = undef,
   $config_import_xml  = undef,
-  $server_xml         = undef,
   $replica_user       = undef,
   $replica_pass       = undef,
   $manage_java        = true,
@@ -50,6 +50,9 @@ class artifactory(
   $postgresql_jdbc_url = 'https://jdbc.postgresql.org/download/postgresql-42.1.1.jar',
 ) {
 
+  if !$http_port and !$ajp_port {
+    fail('Artifactory must be configured with either AJP or HTTP or both')
+  }
   #requires Java >1.8!!!
   if $manage_java {
     class { '::java':

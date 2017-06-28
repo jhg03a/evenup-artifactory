@@ -59,15 +59,13 @@ class artifactory::config (
     }
   }
 
-  if $::artifactory::server_xml {
-    file  {  "${::artifactory::home_dir}/tomcat/conf/server.xml":
-      ensure  => file,
-      owner   => artifactory,
-      group   => artifactory,
-      mode    => '0444',
-      content => $::artifactory::server_xml,
-      notify  => Class['artifactory::service'],
-    }
+  file  {  "${::artifactory::home_dir}/tomcat/conf/server.xml":
+    ensure  => file,
+    owner   => artifactory,
+    group   => artifactory,
+    mode    => '0444',
+    content => template('artifactory/server.xml.erb'),
+    notify  => Class['artifactory::service'],
   }
 
   if $::artifactory::license {
