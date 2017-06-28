@@ -16,7 +16,7 @@ class artifactory::config (
   $db_pass  = $::artifactory::db_pass,
 ){
 
-  if downcase($::artifactory::db_type) != 'derby' {
+  if downcase($::artifactory::db_type) != 'derby' or $::artifactory::server_xml {
     file {"${::artifactory::home_dir}/etc":
       ensure => directory,
       owner  => artifactory,
@@ -50,26 +50,14 @@ class artifactory::config (
     fail("Use of private class ${name} by ${caller_module_name}")
   }
 
-  # This section suppose to push the template with initial config into artifactory.
-  # After import Artifactory renames the file to bootstrap.xml and create latest.xml
-  # Commented out because didn't find correct way how to pass template with conditional
-  # If bootstrap.xml exists than pass the template. Otherwise skip without errors/warnings.
-  #
-  # exec {"check_presence":
-  #   command => '/bin/true',
-  #   onlyif  => "test -f ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
-  #   path    => ['/usr/bin','/usr/sbin','/bin','/sbin'],
-  # }
-  #
-  # if $::artifactory::config_import_xml {
-  #   file   { "${::artifactory::home_dir}/etc/artifactory.config.import.xml":
-  #     ensure  => file,
-  #     content => $::artifactory::config_import_xml,
-  #     owner   => artifactory,
-  #     group   => artifactory,
-  #     require => Exec['check_presence'],
-  #   }
-  # }
+  if $::artifactory::config_import_xml {
+    exec { 'Load Initial Artifactory Config':
+      command => "/bin/echo \"${::regsubst($::artifactory::config_import_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/artifactory.config.import.xml",
+      unless  => "/usr/bin/test -s ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
+      notify  => Class['artifactory::service'],
+      require => File["${::artifactory::home_dir}/etc"],
+    }
+  }
 
   if $::artifactory::server_xml {
     file  {  "${::artifactory::home_dir}/tomcat/conf/server.xml":
