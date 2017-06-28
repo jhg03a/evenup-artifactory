@@ -16,14 +16,6 @@ class artifactory::config (
   $db_pass  = $::artifactory::db_pass,
 ){
 
-  if downcase($::artifactory::db_type) != 'derby' or $::artifactory::server_xml {
-    file {"${::artifactory::home_dir}/etc":
-      ensure => directory,
-      owner  => artifactory,
-      group  => artifactory,
-    }
-  }
-
   if $::artifactory::db_type == 'postgresql' {
     # push both variants so upgrade to 5.x won't cause problems
     # artifactory 4.x looks for storage.properties
@@ -55,7 +47,6 @@ class artifactory::config (
       command => "/bin/echo \"${::regsubst($::artifactory::import_config_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/artifactory.config.import.xml",
       unless  => "/usr/bin/test -s ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
       notify  => Class['artifactory::service'],
-      require => File["${::artifactory::home_dir}/etc"],
     }
   }
 
@@ -64,7 +55,6 @@ class artifactory::config (
       command => "/bin/echo \"${::regsubst($::artifactory::import_security_xml,'\"','\\\"','G')}\" > ${::artifactory::home_dir}/etc/security.import.xml",
       unless  => "/usr/bin/test -s ${::artifactory::home_dir}/etc/artifactory.config.bootstrap.xml",
       notify  => [Exec['Fix Initial Artifactory Security Data Permissions'],Class['artifactory::service']],
-      require => File["${::artifactory::home_dir}/etc"],
     }
     exec { 'Fix Initial Artifactory Security Data Permissions':
       command     => "/usr/bin/chown artifactory:artifactory ${::artifactory::home_dir}/etc/security.import.xml",
