@@ -44,11 +44,21 @@ class artifactory(
   $server_xml         = undef,
   $replica_user       = undef,
   $replica_pass       = undef,
+  $manage_java        = true,
 ) {
 
-    #requires Java >1.8!!!
+  #requires Java >1.8!!!
+  if $manage_java {
   class { '::java':
-    package => 'openjdk-8-jre'
+      package => 'openjdk-8-jre',
+    }
+    $java_detected = true
+  } else {
+    if defined(Package['java']) or defined(Java::Oracle['jdk8']){
+      $java_detected = true
+    } else {
+      $java_detected = false
+    }
   }
 
   class { '::artifactory::install': }
