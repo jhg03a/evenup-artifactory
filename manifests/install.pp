@@ -39,18 +39,18 @@ class artifactory::install {
   }
 
   if $::artifactory::manage_user {
-  user { 'artifactory':
-    ensure => 'present',
-    system => true,
-    shell  => '/bin/bash',
-    home   => $::artifactory::home_dir,
-    gid    => 'artifactory',
-  }
+    user { 'artifactory':
+      ensure => 'present',
+      system => true,
+      shell  => '/bin/bash',
+      home   => $::artifactory::home_dir,
+      gid    => 'artifactory',
+    }
 
-  group { 'artifactory':
-    ensure => 'present',
-    system => true,
-  }
+    group { 'artifactory':
+      ensure => 'present',
+      system => true,
+    }
   }
 
   package { 'artifactory':
@@ -63,11 +63,11 @@ class artifactory::install {
   }
 
   file {$::artifactory::home_dir:
-    require => Package['artifactory'],
     ensure  => directory,
     recurse => true,
     owner   => artifactory,
     group   => artifactory,
+    require => Package['artifactory'],
   }
 
   if $::artifactory::data_path != "${::artifactory::home_dir}/data" {
@@ -99,12 +99,12 @@ class artifactory::install {
     $is_valid_jdbc_url_regex = '.*\/(.*\.jar)$'
     if $::artifactory::postgresql_jdbc_url =~ $is_valid_jdbc_url_regex {
       $pql_driver = regsubst($::artifactory::postgresql_jdbc_url,$is_valid_jdbc_url_regex,'\1')
-    file { "${::artifactory::home_dir}/tomcat/lib":
-      ensure => directory,
-      mode   => '0775',
-      owner  => artifactory,
-      group  => artifactory,
-    } ->
+      file { "${::artifactory::home_dir}/tomcat/lib":
+        ensure => directory,
+        mode   => '0775',
+        owner  => artifactory,
+        group  => artifactory,
+      } ->
       file {'Postgresql JDBC Driver':
         ensure => 'file',
         path   => "${::artifactory::home_dir}/tomcat/lib/${pql_driver}",

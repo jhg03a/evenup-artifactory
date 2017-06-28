@@ -32,7 +32,7 @@ class artifactory(
   $package_source     = undef,
   $ajp_port           = 8019,
   $home_dir           = '/var/opt/jfrog/artifactory',
-  $data_path          = "/var/opt/jfrog/artifactory/data",
+  $data_path          = '/var/opt/jfrog/artifactory/data',
   $backup_path        = undef,
   $db_type            = 'derby',
   $db_host            = 'localhost',
@@ -51,7 +51,7 @@ class artifactory(
 
   #requires Java >1.8!!!
   if $manage_java {
-  class { '::java':
+    class { '::java':
       package => 'openjdk-8-jre',
     }
     $java_detected = true

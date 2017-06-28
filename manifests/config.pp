@@ -76,7 +76,7 @@ class artifactory::config (
       notify  => Service['artifactory'],
       owner   => 'artifactory',
       group   => 'artifactory',
-      require => [ User['artifactory'], Group['artifactory'], File[$::artifactory::data_path] ]
+      require => [ User['artifactory'], Group['artifactory'], File[$::artifactory::data_path] ],
     }
   }
 }
